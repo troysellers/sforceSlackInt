@@ -54,10 +54,80 @@ Should result in something like this.
 ## The Salesforce Bit...
 Now we have an endpoint configured and listening for something, its time to configure Salesforce to send the messages to Slack. We are going to do this by writing a small piece of Apex code that will be fired from a process we define in the Process Builder
 
-### Build Process
+###Apex Class
+Now we can create the Apex code that is capable of posting a message to this newly configured Webhook URL. The methods and classes here will allow Opportunity Name and Stage fields to be posted out to the the URL. 
+
+```
+public with sharing class SlackOpportunityPublisher {
+     
+    private static final String slackURL = 'YOUR_WEBHOOK_URL';
+     
+    public class Oppty {
+        @InvocableVariable(label='Opportunity Name')
+        public String opptyName;
+        @InvocableVariable(label='Stage')
+        public String stage;
+    }
+     
+    @InvocableMethod(label='Post to Slack')
+    public static void postToSlack(List<Oppty> oppties) {
+        Oppty o = oppties[0]; // If bulk, only post first to avoid overloading Slack channel
+        Map<String,Object> msg = new Map<String,Object>();
+        msg.put('text', 'The following opportunity has changed:\n' + o.opptyName + '\nNew Stage: *' + o.stage + '*');
+        msg.put('mrkdwn', true);
+        String body = JSON.serialize(msg);    
+        System.enqueueJob(new QueueableSlackCall(slackURL, 'POST', body));
+    }
+     
+    public class QueueableSlackCall implements System.Queueable, Database.AllowsCallouts {
+         
+        private final String url;
+        private final String method;
+        private final String body;
+         
+        public QueueableSlackCall(String url, String method, String body) {
+            this.url = url;
+            this.method = method;
+            this.body = body;
+        }
+         
+        public void execute(System.QueueableContext ctx) {
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint(url);
+            req.setMethod(method);
+            req.setBody(body);
+            Http http = new Http();
+            HttpResponse res = http.send(req);
+        }
+ 
+    }
+    
+}
+```
+Notice the [@InvocableVariable](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_annotation_InvocableVariable.htm) and [@InvocableMethod](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_annotation_InvocableMethod.htm) annotations on this class that allow these methods to be exposed to the configuration tools in the Salesforce system. Other interesting Apex features in this code are the use of [System.Queueable](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_class_System_Queueable.htm%23apex_class_System_Queueable) and [Database.AllowsCallouts](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_batch_interface.htm) interfaces that are being used. 
+
+
+### Build the Process
+Now we can define the business process that will cause the notifcation to fire and be propogated into Slack. 
+
+Lets fire up our Process Builder and create this rule.
+![Create Process](5.0 - create process.png)
+
+Click New and populate the details of your new Process.
+![New Process](5.1 - new process.png)
+
+![New Process](5.2 - new process window.png)
+
+Select the Opportunity object, then add the selection criteria. i.e. When does the action need to fire? In our case, we want to set when the opportunity stage has changed.
+
+![Process Criteria](5.3 - Process Criteria.png)
+
+Now lets use that Apex class we created, populate the variables and execute the call to Slack!
+![Set the Action](5.4 - Configure Apex Class.png)
 
 ### Test
-
+Your functioning integration should now be ready to test. 
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](http://www.youtube.com/watch?v=YOUTUBE_VIDEO_ID_HERE)
 
 ## View Salesforce Data Using Slash Commands
 
