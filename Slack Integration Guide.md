@@ -1,9 +1,8 @@
 #Salesforce Slack Integration
 
-
 ## Introduction
 
-In this project we will be creating two different integrations between Salesforce and the Slack Messaging service. [Slack](http://www.slack.com) is a cloud based team collaboration tool, allowing teams to join and create different Channels. Slack is also highly extensible and provides some excellent mechanisms for integration, some of which we are going to explore in this project.
+In this project we will be creating two different integrations between Salesforce and the Slack Messaging service. [Slack](http://www.slack.com) is a cloud based team collaboration tool, allowing teams to join and create different Channels. Slack is also highly extensible and provides some excellent mechanisms for integration, some of which we are going to explore in this project. 
 
 There are three integrations that you are going to build:
 * Salesforce to Slack - notify on update of an Opportunity stage.
@@ -14,9 +13,9 @@ Sounds like a lot? Well, luckily some of the [heavy lifting](http://coenraets.or
 
 Let's get started! 
 
-
-
 ## 1 - Notify Slack Team of Opportunity Status Update
+Picture this, your project team is happily working away delivering for their customers while your Sales team is on the road, closing deals. The project team have a very active Slack channel that they use to keep on top of all the changing requirements for in flight projects, as well as helping them manage resourcing when changes happen. The team is always interested when deals move towards close, it helps them keep one eye on the resourcing pipeline. Lets build a simple integration to make it even easier for the project team to stay up to date.
+
 ### What you will do
 1. Create a Slack Team & Channel
 2. Add the Slack Webhook 
@@ -24,13 +23,15 @@ Let's get started!
 4. Build the Process
 5. Enable Remote Site and Test
 
+![Salesforce to Slack](5.6 - salesforceToSlack.png)
+
 ## The Slack Bit...
 ### Create Slack Team and Channel
-Create your own Slack account for this exercise, your company might already have teams on Slack so when you register with your email address you could be prompted to join one of these existing channels. Go ahead and let the wizard guide you through creation of your own Slack Team, you should end up with something like this.
+Create your own Slack account for this exercise, your company might already have teams on Slack so when you register with your email address you could be prompted to join one of these existing channels.. They may not appreciate your positing updates from your Salesforce Developer environment so lets create a new team from scratch. Go ahead and let the wizard guide you through creation of your own Slack Team, you should end up with something like this.
 
 ![Create Slack Team](3 - Create Team.png)
 
-Once you have created your team, go ahead and add a new Channel. This will allow users to subscribe to content being published from your Salesforce integration.
+Once you have created your team, add yourself a new Channel. Slack Channels are an effective way of broadcasting information to a group of users who are interested, they express their interest by subscribing to channels they are interested. Our channel we are creating now will allow members of the project team to be alerted, if they are interested (i.e. if they subscribe!)
 
 ![Create Slack Channel](1 - Create Slack Channel.png)
 
@@ -113,31 +114,31 @@ Notice the [@InvocableVariable](https://developer.salesforce.com/docs/atlas.en-u
 
 
 ### Build the Process
-Now we can define the business process that will cause the notifcation to fire and be propogated into Slack. 
+Now we can define the business process that will cause the notifcation to fire and be propogated into Slack. Here we get to see one of the really powerful features of Salesforce when you writing code, the amount of code you don't have to write! As a developer all we needed to do was build a small module that took some parameters and passed them to our Slack endpoint, the who, when and why of this integration is now completely declarative! 
 
 Lets fire up our Process Builder and create this rule.
 ![Create Process](5.0 - create process.png)
 
 Click New and populate the details of your new Process.
-![New Process](5.1 - new process.png)
 
 ![New Process](5.2 - new process window.png)
 
-Select the Opportunity object, then add the selection criteria. i.e. When does the action need to fire? In our case, we want to set when the opportunity stage has changed.
+Select the Opportunity object, then add the selection criteria. i.e. When does the action need to fire? In our case, we want to notify our project teams through Slack when an Opporunity record changes stage. Notice here we could add plenty of different conditions if required, we might not want to spam our team with every minor detail? 
 
 ![Process Criteria](5.3 - Process Criteria.png)
 
-Now lets use that Apex class we created, populate the variables and execute the call to Slack!
+Now we can add an action that calls our fresly minted Apex class, ready to accept the two parameters that we annotated with the @InnvocableVariable annotation.
 ![Set the Action](5.4 - Configure Apex Class.png)
 
 ### Test
-Your functioning integration should now be ready to test. 
+Your functioning integration should now be ready to test. Go ahead and login to Slack
 
 [![Process Builder](6.3 - Step1Video.png)](https://youtu.be/M8gEkDk0bto)
 
 
 ## 2 - View Salesforce Data Using Slash Commands
-So we have a conversation going from Salesforce to Slack, but what about a user that wants to pull data into Slack without leaving Slack? Well, lets have a look at [Slack Slash Commands](https://api.slack.com/slash-commands).
+Now our project team is fully aware of the latest and greatest news on deals in real time from Salesforce, but what if they wanted to interact with Salesforce data themselves? Should these users really have to leave their beloved Slack interface if they just wanted to see a few opportunities, contacts or to create a simple case? Luckily we have a few handy developers on staff who can pull together a little integration that will allow just this. Lets have a look at [Slack Slash Commands](https://api.slack.com/slash-commands) and another awesome component from the Salesforce App Cloud, Heroku. 
+
 We want to setup a few different scenarios here :
 * Show the top opportunities from Salesforce  (/pipeline[number to show])
 * Search for a Salesforce Contact in the Slack UI (/contact[search key])
@@ -148,12 +149,14 @@ To achieve this we are going to :
 * Create a Node.js application that will serve as the proxy between Salesforce and Slack (well, actually we are just going to copy one!)
 * Configure Slash Commands in Slack
 
+![Slack to Salesforce](6.4 - Slack to Salesforce.png)
+
 ### Architecture
 We need to setup a small Heroku app to broker the communcation between Slack and Salesforce. This app is going to use [Node.js](https://nodejs.org/) and the [nForce](https://github.com/kevinohara80/nforce) module to provide convenience methods for accessing Salesforce. If you have yet to get your [Heroku](www.heroku.com) account, head over and sign up for the free tier. 
 
 ![Heroku Sign Up](7.1 - sIgnupHeroku.png)
 
-We need to let Salesforce know that an application is going to want to use the API, so we have to configure a the Connected App in our developer environment. Go to Apps to create a new Connected App.
+We need to let Salesforce know that an application is going to want to use the API, so we have to configure a the Connected App in our developer environment. Go to Apps to create a new Connected App. 
 
 ![New Connected App](7.2 - ConnectAppConfig.png)
 
@@ -161,7 +164,7 @@ Configure, don't worry about the callback URL yet as we are going to change that
 
 ![Configure Connected App](7.3 - ConnectedAppConfig.png)
 
-Now we can deploy the [application](https://github.com/ccoenraets/slackforce), it is a trivial thing to deploy this appliction thanks to Heroku... try it, just click this button. 
+Now we can deploy this [application](https://github.com/ccoenraets/slackforce) into our newly (or well used) Heroku environment, it is a trivial thing to deploy this appliction thanks to Heroku... try it, just click this button. 
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/ccoenraets/slackforce)
 
@@ -193,6 +196,7 @@ Command | URL | Method | Custom Name
 /contact | https://app_name.herokuapp.com/contact | POST | Salesforce Contacts
 /case | https://app_name.herokuapp.com/case | POST | Salesforce Cases
 
+You will need to create a separate Slash Command for each use case, configuring a Slash command should look like this. This is also where you will get you Slack Token that needs to be configured in your Heroku application.
 
 ![Configure](8.2 - slashConfig.png)
 
@@ -209,4 +213,43 @@ Congratulations, you should now be able to pull Salesforce data into your Slack 
 [![Salesforce in Slack](8.5 - Step2Video.png)](https://youtu.be/xB-1SsUoBHk)
 
 
-## Something Else 
+## 3 - Its all in the Bot
+
+In the last part of our workshop we are going to create an integration using bots, we are going to monitor Slack channels and respond to Salesforce requests expressed in natural language. 
+
+We are going to create an applciation that opens a Websocket connection to Slack, allowing the bot to listen to the Slack channel as well as any direct messages that users send directly to the bot. We are going to use [Botkit](https://github.com/howdyai/botkit) to abstract some of the low level details of Slack (and [Facebook](https://blog.howdy.ai/botkit-for-facebook-messenger-17627853786b)) bot buildling. 
+
+To finish off today, we are going to :
+* Configure another Salesforce Connected App
+* Create another Heroku App
+* Create a bot user in Slack
+
+### 1 - Create a Salesforce Connected App
+
+Create Connected app.
+
+![Connected App Config](9.1 - ConnectedApp Config.png)
+
+
+### 2 - Create the Slack Bot User
+
+Lets add a bot to our Slack Team. 
+
+![Add the Bot](9.2 - AddTheBot.png)
+
+### 3 - Create the Heroku App
+
+Go ahead and use your Heroku again (or follow this for deploying locally)
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/ibigfoot/salesforce-bot-slack)
+
+Setup your config vars, again to remember that your security token should be appended to the password.
+
+![Heroku Config](9.3 - HerokuAppConfig.png)
+
+
+You should now be able to have a conversation with your Salesforce Bot!
+
+[![Salesforce Bot](10 - Step3Video.png)](https://youtu.be/1EPNbHi-3UY)
+
+
