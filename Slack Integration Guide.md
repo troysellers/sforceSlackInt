@@ -7,11 +7,16 @@ In this project we will be creating two different integrations between Salesforc
 
 There are three integrations that you are going to build:
 * Salesforce to Slack - notify on update of an Opportunity stage.
-* Slack Slash Commands - 
+* Slack Slash Commands - provide a set of commands that Slack users can execute to see Salesforce data in Slack
+* Configure a Salesforce Bot to monitor Slack channels and respond
+
+Sounds like a lot? Well, luckily some of the [heavy lifting](http://coenraets.org/blog/2016/04/salesforce-slack-bot/) has been done for us and today we will be able to stand on the shoulders of giants as we go.
+
+Let's get started! 
 
 
 
-## Notify Slack Team of Opportunity Status Update
+## 1 - Notify Slack Team of Opportunity Status Update
 ### What you will do
 1. Create a Slack Team & Channel
 2. Add the Slack Webhook 
@@ -127,16 +132,81 @@ Now lets use that Apex class we created, populate the variables and execute the 
 
 ### Test
 Your functioning integration should now be ready to test. 
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](http://www.youtube.com/watch?v=YOUTUBE_VIDEO_ID_HERE)
 
-## View Salesforce Data Using Slash Commands
+[![Process Builder](6.3 - Step1Video.png)](https://youtu.be/M8gEkDk0bto)
 
-### Register For Heroku 
 
-### Get Your Heroku App
+## 2 - View Salesforce Data Using Slash Commands
+So we have a conversation going from Salesforce to Slack, but what about a user that wants to pull data into Slack without leaving Slack? Well, lets have a look at [Slack Slash Commands](https://api.slack.com/slash-commands).
+We want to setup a few different scenarios here :
+* Show the top opportunities from Salesforce  (/pipeline[number to show])
+* Search for a Salesforce Contact in the Slack UI (/contact[search key])
+* Create a customer service Case from the Slack UI (/case[subject:description])
 
-### Create Your Slash Commands
+To achieve this we are going to :
+* Setup a Salesforce Connected App
+* Create a Node.js application that will serve as the proxy between Salesforce and Slack (well, actually we are just going to copy one!)
+* Configure Slash Commands in Slack
 
-### Test
+### Architecture
+We need to setup a small Heroku app to broker the communcation between Slack and Salesforce. This app is going to use [Node.js](https://nodejs.org/) and the [nForce](https://github.com/kevinohara80/nforce) module to provide convenience methods for accessing Salesforce. If you have yet to get your [Heroku](www.heroku.com) account, head over and sign up for the free tier. 
+
+![Heroku Sign Up](7.1 - sIgnupHeroku.png)
+
+We need to let Salesforce know that an application is going to want to use the API, so we have to configure a the Connected App in our developer environment. Go to Apps to create a new Connected App.
+
+![New Connected App](7.2 - ConnectAppConfig.png)
+
+Configure, don't worry about the callback URL yet as we are going to change that later! 
+
+![Configure Connected App](7.3 - ConnectedAppConfig.png)
+
+Now we can deploy the [application](https://github.com/ccoenraets/slackforce), it is a trivial thing to deploy this appliction thanks to Heroku... try it, just click this button. 
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/ccoenraets/slackforce)
+
+You will be asked to configure some properites on this application
+
+* SF_CLIENT_ID - enter the Consumer Key of your Salesforce Connected App
+* SF_CLIENT_SECRET - enter the Consumer Secret of you Salesforce Connected App
+* SF_USER_NAME - this is the username of the Salesforce integration user
+* SF_PASSWORD - this is the password for this user
+* SLACK_OPPORTUNITY_TOKEN, SLACK_CONTACT_TOKEN and SLACK_CASE_TOKEN are blank for now (we get back to this)
+
+Once you have deployed, you should see the an output similar to this. 
+
+![Success Heroku](7.4 - SuccessDeploy.png)
+
+### Create the Slack Commands
+We now need to do some configuration work in the Slack UI to create the actual Slack commands that end users will need. In your browser, open up Slack (if you haven't already). As an example, my Slack team URL is https://sforce-slack-demo.slack.com. We are going to add another integration, however this time we will add Slash Command (remember our first one was a Webhook)
+
+![Add Integration](8.0 - AddIntegration.png)
+
+![Add Slash Command](8.1 - SlashCommand.png)
+
+Click install and then add the following commands to your Team.
+
+
+Command | URL | Method | Custom Name
+--------|-----|--------|------------
+/pipeline | https://app_name.herokuapp.com/pipeline | POST | Top Opportunities
+/contact | https://app_name.herokuapp.com/contact | POST | Salesforce Contacts
+/case | https://app_name.herokuapp.com/case | POST | Salesforce Cases
+
+
+![Configure](8.2 - slashConfig.png)
+
+Now we have created our Slash Commands, lets update our Heroku app with the Tokens that were just generated for each command. From the Settings tab in your [Heroku Dashboard](dashboard.heroku.com), reveal the config vars and edit. Oh, and don't forget to generate and append your security token to the SF_PASSWORD variable!!
+
+![Tokens](8.3 - TokensInHeroku.png)
+
+Lastly, remember we said there was a Connected App setting we needed to come back to? Thats right, our callback URL is not a localhost address anymore but should now point to our Heroku app.
+
+![Callback](8.4 - CallbackScope.png)
+
+Congratulations, you should now be able to pull Salesforce data into your Slack stream.
+
+[![Salesforce in Slack](8.5 - Step2Video.png)](https://youtu.be/xB-1SsUoBHk)
+
 
 ## Something Else 
