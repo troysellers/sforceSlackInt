@@ -134,7 +134,7 @@ Click New and populate the details of your new Process.
 
 ![New Process](5.2 - new process window.png)
 
-Select the Opportunity object, then add the selection criteria. i.e. When does the action need to fire? In our case, we want to notify our project teams through Slack when an Opporunity record changes stage. Notice here we could add plenty of different conditions if required, we might not want to spam our team with every minor detail? 
+Select the Opportunity object, and choose to fire whenever a record is created or updated, then add the selection criteria. i.e. When does the action need to fire? In our case, we want to notify our project teams through Slack when an Opportunity record changes stage. Notice here we could add plenty of different conditions if required, we might not want to spam our team with every minor detail? 
 
 ![Process Criteria](5.3 - Process Criteria.png)
 
