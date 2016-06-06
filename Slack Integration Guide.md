@@ -209,7 +209,7 @@ Command | URL | Method | Custom Name
 /contact | https://app_name.herokuapp.com/contact | POST | Salesforce Contacts
 /case | https://app_name.herokuapp.com/case | POST | Salesforce Cases
 
-Once you create your first Slash command you will land on the configuration page, this has all the details you are going to need for configuration of the Heroku app. To create a second (or third!) navigate back to the Cofigurations On <your slack team> section using the breadcrumb navigation, then add another configuration.
+Once you create your first Slash command you will land on the configuration page, this has all the details you are going to need for configuration of the Heroku app. To create a second (or third!) navigate back to the "Cofigurations On [your slack team]" section using the breadcrumb navigation, then add another configuration.
 
 You will need to create a separate Slash Command for each use case, configuring a Slash command should look like this. This is also where you will get you Slack Token that needs to be configured in your Heroku application.
 
