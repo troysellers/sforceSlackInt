@@ -12,14 +12,14 @@ To complete this project you will need
 There are three integrations that you are going to build:
 * Salesforce to Slack - notify on update of an Opportunity stage.
 * Slack Slash Commands - provide a set of commands that Slack users can execute to see Salesforce data in Slack
-* Configure a Salesforce Bot to monitor Slack channels and respond
+* Configure a Salesforce bot to monitor Slack channels and respond
 
 Sounds like a lot? Well, luckily some of the <a href="http://coenraets.org/blog/2016/04/salesforce-slack-bot/" target="_blank">heavy lifting</a> has been done for us and today we will be able to stand on the shoulders of giants as we go.
 
 Let's get started! 
 
 ## 1 - Notify Slack Team of Opportunity Status Update
-Picture this, your project team is happily working away delivering for their customers while your Sales team is on the road, closing deals. The project team have a very active Slack channel that they use to keep on top of all the changing requirements for in flight projects, as well as helping them manage resourcing when changes happen. The team is always interested when deals move towards close, it helps them keep one eye on the resourcing pipeline. Lets build a simple integration to make it even easier for the project team to stay up to date.
+Picture this, your project team is happily working away delivering for their customers while your sales team is on the road, closing deals. The project team have a very active Slack channel that they use to keep on top of all the changing requirements for in flight projects, as well as helping them manage resourcing when changes happen. The team is always interested when deals move towards close, it helps them keep one eye on the resourcing pipeline. Lets build a simple integration to make it even easier for the project team to stay up to date.
 
 ### What you will do
 1. Create a Slack Team & Channel
@@ -32,7 +32,7 @@ Picture this, your project team is happily working away delivering for their cus
 
 ## The Slack Bit...
 ### Create Slack Team and Channel
-<a href="https://slack.com/create" target="_blank">Create</a> your own Slack account for this exercise, your company might already have teams on Slack so when you register with your email address you could be prompted to join one of these existing channels.. They may not appreciate your positing updates from your Salesforce Developer environment so lets create a new team from scratch. Go ahead and let the wizard guide you through creation of your own Slack Team, you should end up with details similar to this. 
+<a href="https://slack.com/create" target="_blank">Create</a> your own Slack account for this exercise, your company might already have teams on Slack so when you register with your email address you could be prompted to join one of these existing channels. They may not appreciate your positing updates from your Salesforce Developer environment so lets create a new team from scratch. Go ahead and let the wizard guide you through creation of your own Slack Team, you should end up with details similar to this. 
 
 ![Create Slack Team](3 - Create Team.png)
 
@@ -209,6 +209,8 @@ Command | URL | Method | Custom Name
 /contact | https://app_name.herokuapp.com/contact | POST | Salesforce Contacts
 /case | https://app_name.herokuapp.com/case | POST | Salesforce Cases
 
+Once you create your first Slash command you will land on the configuration page, this has all the details you are going to need for configuration of the Heroku app. To create a second (or third!) navigate back to the Cofigurations On <your slack team> section using the breadcrumb navigation, then add another configuration.
+
 You will need to create a separate Slash Command for each use case, configuring a Slash command should look like this. This is also where you will get you Slack Token that needs to be configured in your Heroku application.
 
 ![Configure](8.2 - slashConfig.png)
@@ -261,7 +263,7 @@ Setup your config vars, again to remember that your security token should be app
 ![Heroku Config](9.3 - HerokuAppConfig.png)
 
 
-You should now be able to have a conversation with your Salesforce Bot!
+You should now be able to have a conversation with your Salesforce bot!
 
 [![Salesforce Bot](10 - Step3Video.png)](https://youtu.be/1EPNbHi-3UY)
 
